@@ -7,7 +7,6 @@ from urllib.parse import urlparse
 from socket import _GLOBAL_DEFAULT_TIMEOUT
 import logging
 import inspect
-
 from typing import Any, Union, TypeVar, Callable, Sequence, Dict
 
 import voluptuous as vol
@@ -92,7 +91,7 @@ def matches_regex(regex):
 
         if not regex.match(value):
             raise vol.Invalid('value {} does not match regular expression {}'
-                              .format(regex.pattern, value))
+                              .format(value, regex.pattern))
 
         return value
     return validator

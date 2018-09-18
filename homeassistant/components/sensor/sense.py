@@ -19,7 +19,7 @@ from homeassistant.util import Throttle
 from homeassistant.util import slugify
 import homeassistant.helpers.config_validation as cv
 
-REQUIREMENTS = ['sense_energy==0.4.1']
+REQUIREMENTS = ['sense_energy==0.4.2']
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -69,7 +69,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
 })
 
 
-def setup_platform(hass, config, add_devices, discovery_info=None):
+def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up the Sense sensor."""
     from sense_energy import Senseable
 
@@ -116,7 +116,7 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
             devices.append(Sense(data, name, sensor_type,
                                  None, update_call, device_id))
 
-    add_devices(devices)
+    add_entities(devices)
 
 
 class Sense(Entity):
