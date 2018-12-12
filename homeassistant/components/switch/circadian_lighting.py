@@ -170,7 +170,7 @@ class CircadianSwitch(SwitchDevice, RestoreEntity):
         if self._state is not None:
             return
 
-        state = await self.sync_get_last_state()
+        state = await self.async_get_last_state()
         self._state = state and state.state == STATE_ON
 
     @property
