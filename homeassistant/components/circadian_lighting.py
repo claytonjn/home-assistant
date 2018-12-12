@@ -35,7 +35,8 @@ import homeassistant.helpers.config_validation as cv
 from homeassistant.components.light import (
     VALID_TRANSITION, ATTR_TRANSITION)
 from homeassistant.const import (
-    CONF_LATITUDE, CONF_LONGITUDE)
+    CONF_LATITUDE, CONF_LONGITUDE,
+    SUN_EVENT_SUNRISE, SUN_EVENT_SUNSET)
 from homeassistant.util import Throttle
 from homeassistant.helpers.discovery import load_platform
 from homeassistant.helpers.dispatcher import dispatcher_send
@@ -184,8 +185,8 @@ class CircadianLighting(object):
         if self.data['sunset_offset'] is not None:
             sunset = sunset + self.data['sunset_offset']
         return {
-            'sunrise': sunrise,
-            'sunset': sunset,
+            SUN_EVENT_SUNRISE: sunrise,
+            SUN_EVENT_SUNSET: sunset,
             'solar_noon': solar_noon,
             'solar_midnight': solar_midnight
         }
@@ -195,21 +196,21 @@ class CircadianLighting(object):
         today_sun_times = self.get_sunrise_sunset()
 
         now_seconds = now.timestamp()
-        today_sunrise_seconds = today_sun_times['sunrise'].timestamp()
-        today_sunset_seconds = today_sun_times['sunset'].timestamp()
+        today_sunrise_seconds = today_sun_times[SUN_EVENT_SUNRISE].timestamp()
+        today_sunset_seconds = today_sun_times[SUN_EVENT_SUNSET].timestamp()
         today_solar_noon_seconds = today_sun_times['solar_noon'].timestamp()
         today_solar_midnight_seconds = today_sun_times['solar_midnight'].timestamp()
 
-        if now < today_sun_times['sunrise']:
+        if now < today_sun_times[SUN_EVENT_SUNRISE]:
             yesterday_sun_times = self.get_sunrise_sunset(now - timedelta(days=1))
-            yesterday_sunrise_seconds = yesterday_sun_times['sunrise'].timestamp()
-            yesterday_sunset_seconds = yesterday_sun_times['sunset'].timestamp()
+            yesterday_sunrise_seconds = yesterday_sun_times[SUN_EVENT_SUNRISE].timestamp()
+            yesterday_sunset_seconds = yesterday_sun_times[SUN_EVENT_SUNSET].timestamp()
             yesterday_solar_midnight_seconds = yesterday_sun_times['solar_midnight'].timestamp()
 
             x1 = yesterday_sunset_seconds
             y1 = 0
 
-            if today_sun_times['solar_midnight'] > yesterday_sun_times['sunset'] and today_sun_times['solar_midnight'] < today_sun_times['sunrise']:
+            if today_sun_times['solar_midnight'] > yesterday_sun_times[SUN_EVENT_SUNSET] and today_sun_times['solar_midnight'] < today_sun_times[SUN_EVENT_SUNRISE]:
                 x2 = today_solar_midnight_seconds
             else:
                 x2 = yesterday_solar_midnight_seconds
@@ -217,16 +218,16 @@ class CircadianLighting(object):
 
             x3 = today_sunrise_seconds
             y3 = 0
-        elif now > today_sun_times['sunset']:
+        elif now > today_sun_times[SUN_EVENT_SUNSET]:
             tomorrow_sun_times = self.get_sunrise_sunset(now + timedelta(days=1))
-            tomorrow_sunrise_seconds = tomorrow_sun_times['sunrise'].timestamp()
-            tomorrow_sunset_seconds = tomorrow_sun_times['sunset'].timestamp()
+            tomorrow_sunrise_seconds = tomorrow_sun_times[SUN_EVENT_SUNRISE].timestamp()
+            tomorrow_sunset_seconds = tomorrow_sun_times[SUN_EVENT_SUNSET].timestamp()
             tomorrow_solar_midnight_seconds = tomorrow_sun_times['solar_midnight'].timestamp()
 
             x1 = today_sunset_seconds
             y1 = 0
 
-            if today_sun_times['solar_midnight'] > today_sun_times['sunset'] and today_sun_times['solar_midnight'] < tomorrow_sun_times['sunrise']:
+            if today_sun_times['solar_midnight'] > today_sun_times[SUN_EVENT_SUNSET] and today_sun_times['solar_midnight'] < tomorrow_sun_times[SUN_EVENT_SUNRISE]:
                 x2 = today_solar_midnight_seconds
             else:
                 x2 = tomorrow_solar_midnight_seconds
