@@ -44,7 +44,7 @@ from homeassistant.helpers.event import track_sunrise, track_sunset, track_time_
 from homeassistant.util.color import (
     color_temperature_to_rgb, color_RGB_to_xy,
     color_xy_to_hs)
-from homeassistant.util.dt import now as dt_now
+from homeassistant.util.dt import utcnow as dt_utcnow, as_local
 
 import astral
 from datetime import datetime, timedelta
@@ -157,7 +157,8 @@ class CircadianLighting(object):
     def get_sunrise_sunset(self, date = None):
         if self.data['sunrise_time'] is not None and self.data['sunset_time'] is not None:
             if date is None:
-                date = dt_now()
+                utcdate = dt_utcnow()
+                date = as_local(utcdate)
             sunrise = date.replace(hour=int(self.data['sunrise_time'].strftime("%H")), minute=int(self.data['sunrise_time'].strftime("%M")), second=int(self.data['sunrise_time'].strftime("%S")), microsecond=int(self.data['sunrise_time'].strftime("%f")))
             sunset = date.replace(hour=int(self.data['sunset_time'].strftime("%H")), minute=int(self.data['sunset_time'].strftime("%M")), second=int(self.data['sunset_time'].strftime("%S")), microsecond=int(self.data['sunset_time'].strftime("%f")))
             solar_noon = sunrise + (sunset - sunrise)/2
@@ -168,13 +169,15 @@ class CircadianLighting(object):
             location.longitude = self.data['longitude']
             if self.data['sunrise_time'] is not None:
                 if date is None:
-                    date = dt_now()
+                    utcdate = dt_utcnow()
+                    date = as_local(utcdate)
                 sunrise = date.replace(hour=int(self.data['sunrise_time'].strftime("%H")), minute=int(self.data['sunrise_time'].strftime("%M")), second=int(self.data['sunrise_time'].strftime("%S")), microsecond=int(self.data['sunrise_time'].strftime("%f")))
             else:
                 sunrise = location.sunrise(date)
             if self.data['sunset_time'] is not None:
                 if date is None:
-                    date = dt_now()
+                    utcdate = dt_utcnow()
+                    date = as_local(utcdate)
                 sunset = date.replace(hour=int(self.data['sunset_time'].strftime("%H")), minute=int(self.data['sunset_time'].strftime("%M")), second=int(self.data['sunset_time'].strftime("%S")), microsecond=int(self.data['sunset_time'].strftime("%f")))
             else:
                 sunset = location.sunset(date)
@@ -192,7 +195,8 @@ class CircadianLighting(object):
         }
 
     def calc_percent(self):
-        now = dt_now()
+        utcnow = dt_utcnow()
+        now = as_local(utcnow)
         today_sun_times = self.get_sunrise_sunset()
 
         now_seconds = now.timestamp()
